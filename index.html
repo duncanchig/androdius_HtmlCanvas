@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+canvas {
+    border:1px solid #d3d3d3;
+    background-color: #f1f1f1;
+}
+</style>
+    <script lang="JavaScript" type="text/javascript" src="scripts/jq.js"></script>
+   <!-- <script language="JavaScript" type="text/javascript" src="scripts/game.js"></script>
+    <script language="JavaScript" type="text/javascript" src="scripts/androidus.js"></script>-->
+
+</head>
+<body >
+<script>
+
+    var imageurl = null;
+
+    window.onload = function () {
+
+        // load default image
+        imageurl = "game_assets/androdiusRight.jpg";
+        android();
+
+        $('#flipH').click(function () {
+            flipAndroid(1, 0);
+            moveAndroid.x = x;
+        });
+        $('#flipV').click(function () {
+            flipAndroid(0, 1);
+        });
+
+    };
+
+
+
+    function android() {
+
+        var canvas = document.getElementById('tableTop');
+
+        var ctx = canvas.getContext('2d');
+
+
+        var img = new Image();
+        img.src = imageurl;
+        img.onload = function () {
+            ctx.drawImage(img, 0, 0);
+        };
+        ///////////////////////////////
+
+        ///////////////////////////
+        var w = 500;
+        var h = 500;
+        canvas.width = w;
+        canvas.height = h;
+    }
+
+    function flipAndroid(flipH, flipV) {
+
+        var canvas = document.getElementById('tableTop');
+        var ctx = canvas.getContext('2d');
+
+        var img = new Image();
+        img.src = imageurl;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+
+        var w = img.width;
+        var h = img.height;
+
+        if (flipV) {
+            ctx.scale(1, -1);
+            ctx.translate(0, -h); // h for height
+        }
+        if (flipH) {
+            ctx.scale(-1, 1);
+            ctx.translate(-w, 0); // w for width hence flip left -right
+        }
+        ctx.drawImage(img, 0, 0, img.width, img.height, null, null, w, h);
+        ctx.save();
+        // ctx.clearRect(0,0,canvas.width,canvas.height); // this will clear the state
+    }
+
+    function moveAndroid(x, y) {// in this case our constraints are x & y coordinates
+
+        var canvas = document.getElementById('tableTop'); //our tableTop canvas in html braces
+        var ctx = canvas.getContext('2d');
+
+        var img = new Image();
+        img.src = imageurl;
+        ctx.save(); // save the state of my android image on tableTop
+
+        //////////////////////////////////////////////////
+
+        var w = img.width;
+        var h = img.height;
+        //////////////////////
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // we need to clear each time our object changes position neh..
+
+        /////////NOW LETS DRAW THE ANDROID..//////////////
+        ctx.drawImage(img, x, y);
+        ctx.restore();                                              // restore the redrawn bot..
+        x += 1;    // frame rate
+        speedX = 0;
+        speedY = 0;
+        // y += 5;
+
+        if (x > ctx.canvas.width) {
+            x = 0
+        }
+
+        /////////////everytime change in pos, assign newPosX & Y
+        newPos = function () {
+            x += speedX;
+            y += speedY;
+        }
+        //////////////////////////////////////////////////////////////
+
+        var loopTimer = setTimeout('moveAndroid(' + x + ', ' + y + ')', 0); // looptimer executes my moveAndroid function every 20milliseconds
+
+
+        //////////////////////
+
+
+
+    }
+
+    function updateTableTop() {
+        moveAndroid.clear();
+        moveAndroid.newPos();
+        moveAndroid.update();
+    }
+
+    function clearmove() {
+
+        moveAndroid.speedX = 0;
+        moveAndroid.speedY = 0;
+    }
+
+</script>
+
+
+
+
+<div>
+  <canvas id="tableTop"></canvas>
+</div>
+
+<div style="text-align:center;width:480px;">
+  <button  onmousedown="moveAndroid(0,0)" onmouseup="clearmove()">MOVE</button><br>
+    <br>
+  <button id="flipV">UP-DOWN</button>
+  <button id="flipH">LEFT-RIGHT</button></div>
+
+</body>
+</html>
