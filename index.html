@@ -6,155 +6,144 @@
 canvas {
     border:1px solid #d3d3d3;
     background-color: #f1f1f1;
+    
+    right{
+    visibility:hidden;
+    left{
+    visibility:hidden;
 }
 </style>
     <script lang="JavaScript" type="text/javascript" src="scripts/jq.js"></script>
-   <!-- <script language="JavaScript" type="text/javascript" src="scripts/game.js"></script>
-    <script language="JavaScript" type="text/javascript" src="scripts/androidus.js"></script>-->
-
 </head>
-<body >
+<body onload="startGame()">
 <script>
 
-    var imageurl = null;
+    var android;
+    var myTableTop;
 
-    window.onload = function () {
+    $(document).ready(function(){
+   var $p = $('p');
 
-        // load default image
-        imageurl = "game_assets/androdiusRight.jpg";
-        android();
+  $("#btnRight").click(function(){
+    $("#left").css('visibility', 'hidden');
+     $("#right").css('visibility', 'visible');
+  });
 
-        $('#flipH').click(function () {
-            flipAndroid(1, 0);
-            moveAndroid.x = x;
-        });
-        $('#flipV').click(function () {
-            flipAndroid(0, 1);
-        });
+  $("#btnLeft").click(function(){
+ $("#left").css('visibility', 'visible');
+  $("#right").css('visibility', 'hidden');
+  });
+});
 
-    };
-
-
-
-    function android() {
-
-        var canvas = document.getElementById('tableTop');
-
-        var ctx = canvas.getContext('2d');
-
-
-        var img = new Image();
-        img.src = imageurl;
-        img.onload = function () {
-            ctx.drawImage(img, 0, 0);
-        };
-        ///////////////////////////////
-
-        ///////////////////////////
-        var w = 500;
-        var h = 500;
-        canvas.width = w;
-        canvas.height = h;
+    function startGame() {
+        android = new component(112, 93, "game_assets/androdius.jpg", 0, 1, "image");
+        myTableTop = new component(500, 500, "game_assets/tabletop.jpg", 0, 0, "image");
+        table.start();
     }
 
-    function flipAndroid(flipH, flipV) {
-
-        var canvas = document.getElementById('tableTop');
-        var ctx = canvas.getContext('2d');
-
-        var img = new Image();
-        img.src = imageurl;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.save();
-
-        var w = img.width;
-        var h = img.height;
-
-        if (flipV) {
-            ctx.scale(1, -1);
-            ctx.translate(0, -h); // h for height
+    var table = {
+        canvas: document.createElement("canvas"),
+        start: function () {
+            this.canvas.width = 500;
+            this.canvas.height = 500;
+            this.context = this.canvas.getContext("2d");
+            document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+            this.frameNo = 0;
+            this.interval = setInterval(updateTableTop, 20);
+        },
+        clear: function () {
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        },
+        stop: function () {
+            clearInterval(this.interval);
         }
-        if (flipH) {
-            ctx.scale(-1, 1);
-            ctx.translate(-w, 0); // w for width hence flip left -right
-        }
-        ctx.drawImage(img, 0, 0, img.width, img.height, null, null, w, h);
-        ctx.save();
-        // ctx.clearRect(0,0,canvas.width,canvas.height); // this will clear the state
     }
 
-    function moveAndroid(x, y) {// in this case our constraints are x & y coordinates
-
-        var canvas = document.getElementById('tableTop'); //our tableTop canvas in html braces
-        var ctx = canvas.getContext('2d');
-
-        var img = new Image();
-        img.src = imageurl;
-        ctx.save(); // save the state of my android image on tableTop
-
-        //////////////////////////////////////////////////
-
-        var w = img.width;
-        var h = img.height;
-        //////////////////////
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // we need to clear each time our object changes position neh..
-
-        /////////NOW LETS DRAW THE ANDROID..//////////////
-        ctx.drawImage(img, x, y);
-        ctx.restore();                                              // restore the redrawn bot..
-        x += 1;    // frame rate
-        speedX = 0;
-        speedY = 0;
-        // y += 5;
-
-        if (x > ctx.canvas.width) {
-            x = 0
+    function component(width, height, color, x, y, type) {
+        this.type = type;
+        if (type == "image") {
+            this.image = new Image();
+            this.image.src = color;
         }
-
-        /////////////everytime change in pos, assign newPosX & Y
-        newPos = function () {
-            x += speedX;
-            y += speedY;
+        this.width = width;
+        this.height = height;
+        this.speedX = 0;
+        this.speedY = 0;
+        this.x = x;
+        this.y = y;
+        this.update = function () {
+            ctx = table.context;
+            if (type == "image") {
+                ctx.drawImage(this.image,
+                    this.x,
+                    this.y,
+                    this.width, this.height);
+            } else {
+                ctx.fillStyle = color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
         }
-        //////////////////////////////////////////////////////////////
-
-        var loopTimer = setTimeout('moveAndroid(' + x + ', ' + y + ')', 0); // looptimer executes my moveAndroid function every 20milliseconds
-
-
-        //////////////////////
-
-
-
+        this.newPos = function () {
+            this.x += this.speedX;
+            this.y += this.speedY;
+        }
     }
 
     function updateTableTop() {
-        moveAndroid.clear();
-        moveAndroid.newPos();
-        moveAndroid.update();
+        table.clear();
+        myTableTop.newPos();
+        myTableTop.update();
+        android.newPos();
+        android.update();
     }
+
+  function move(dir) {
+        if (dir == "up") {
+            android.speedY = -1; 
+        }
+        if (dir == "down") {
+           android.speedY = 1; 
+        }
+        if (dir == "left") {
+            android.speedX = -1;
+            //document.getElementById('right').style.display = true;
+        }
+        if (dir == "right") {
+           
+            android.speedX = 1;
+        }
+    }
+
+    function changeDirection(flip) {
+        if (flip == "up") {
+            android.image.src = "game_assets/androdiusUp.jpg";
+        }
+        if (flip == "down") {
+            android.image.src = "game_assets/androdiusDwn.jpg";
+        }
+        if (flip == "left") {
+            android.image.src = "game_assets/androdiusLeft.jpg";
+            //document.getElementById('right').style.display = true;
+        }
+        if (flip == "right") {
+            android.image.src = "game_assets/androdiusRight.jpg";
+            document.getElementById("right").style.visibility = "visible";
+        }
+    }
+
+
 
     function clearmove() {
-
-        moveAndroid.speedX = 0;
-        moveAndroid.speedY = 0;
+        android.speedX = 0;
+        android.speedY = 0;
     }
-
 </script>
-
-
-
-
-<div>
-  <canvas id="tableTop"></canvas>
-</div>
-
 <div style="text-align:center;width:480px;">
-  <button  onmousedown="moveAndroid(0,0)" onmouseup="clearmove()">MOVE</button><br>
-    <br>
-  <button id="flipV">UP-DOWN</button>
-  <button id="flipH">LEFT-RIGHT</button></div>
+  <div><button id="left" onmousedown="move('left')" onmouseup="clearmove()" ontouchstart="move('left')" visibility="hidden" >MOVE</button>
+    <button id="right" onmousedown="move('right')" onmouseup="clearmove()" ontouchstart="move('right')" >MOVE</button></div>
+  <button id="btnLeft" onmousedown="changeDirection('left')" onmouseup="clearmove()" ontouchstart="move('left')">LEFT</button>
+  <button id="btnRight" onmousedown="changeDirection('right')" onmouseup="clearmove()" ontouchstart="move('right')">RIGHT</button><br><br>
+</div>
 
 </body>
 </html>
