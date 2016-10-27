@@ -13,4 +13,6 @@ INSTRUCTIONS
 2. INSIDE FOLDER, DOUBLE CLICK THE index.html file and Voila!!
 3. Enjoy the game
 
+(NB: Game runs without the need of any server....thanks to Vanillajs :))
+
 
