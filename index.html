@@ -21,19 +21,19 @@ canvas {
     var android;
     var myTableTop;
 
-    $(document).ready(function(){
-   var $p = $('p');
+    $(document).ready(function () {
+        var $p = $('p');
 
-  $("#btnRight").click(function(){
-    $("#left").css('visibility', 'hidden');
-     $("#right").css('visibility', 'visible');
-  });
+        $("#btnRight").click(function () {
+            $("#left").css('visibility', 'hidden');
+            $("#right").css('visibility', 'visible');
+        });
 
-  $("#btnLeft").click(function(){
- $("#left").css('visibility', 'visible');
-  $("#right").css('visibility', 'hidden');
-  });
-});
+        $("#btnLeft").click(function () {
+            $("#left").css('visibility', 'visible');
+            $("#right").css('visibility', 'hidden');
+        });
+    });
 
     function startGame() {
         android = new component(112, 93, "game_assets/androdius.jpg", 0, 1, "image");
@@ -73,20 +73,36 @@ canvas {
         this.y = y;
         this.update = function () {
             ctx = table.context;
+
+            // Speed and Position Gauges
+            ctx.font = "16px Garamond";
+		    ctx.fillStyle='White';
+		    //ctx.fillText("Velocity: (x: " + this.speedX.toFixed(2) + ", y: " + this.speedY.toFixed(2) +")", 280, 400);
+		    //ctx.fillText("Position: (x: " + this.x.toFixed(0) + ", y: " + this.y.toFixed(2) + ")", 280, 400);
+            ctx.fillText("REPORT: ", 200, 380);
+
+        	ctx.fillText("Androdius is @ Position:  " + this.x.toFixed(0) + ",  " + this.y.toFixed(0) + "  ", 200, 400);
+            ctx.fillText( " Compass: < West | East > ", 200, 480);
+
+		
+
             if (type == "image") {
                 ctx.drawImage(this.image,
-                    this.x,
-                    this.y,
-                    this.width, this.height);
+                        this.x,
+                        this.y,
+                        this.width, this.height);
             } else {
                 ctx.fillStyle = color;
                 ctx.fillRect(this.x, this.y, this.width, this.height);
+               
             }
         }
         this.newPos = function () {
             this.x += this.speedX;
             this.y += this.speedY;
         }
+
+
     }
 
     function updateTableTop() {
@@ -97,21 +113,48 @@ canvas {
         android.update();
     }
 
-  function move(dir) {
+    /////////////////////////////////////////////
+    function gauges(component) {
+         // draw the velocity and position indicators
+		
+		
+
+    }
+
+
+
+    function move(dir, component,table) {
         if (dir == "up") {
-            android.speedY = -1; 
+            android.speedY = -1;
         }
         if (dir == "down") {
-           android.speedY = 1; 
+            android.speedY = 1;
         }
         if (dir == "left") {
             android.speedX = -1;
             //document.getElementById('right').style.display = true;
         }
         if (dir == "right") {
-           
+
             android.speedX = 1;
         }
+
+        ////////////////////////////////////////
+        var w = 500;
+        var h = 500;
+        var canvas;
+        
+        //////////////////////////////////////
+        canvas = document.getElementById("canvas");
+        if (android.x <= 0)
+            android.x = 0;
+        if (android.x >= 380)
+            android.x = 380;
+        if (android.y <= 0)
+            android.y = 0;
+        if (android.y >= h)
+            android.y = h;
+        /////////////////////////////////////
     }
 
     function changeDirection(flip) {
@@ -139,11 +182,14 @@ canvas {
     }
 </script>
 <div style="text-align:center;width:480px;">
+    <!--<div><input  readonly="true" name="location" placeholder="Hi iam here!"></div>-->
+
   <div><button id="left" onmousedown="move('left')" onmouseup="clearmove()" ontouchstart="move('left')" style="visibility:hidden" >MOVE</button>
     <button id="right" onmousedown="move('right')" onmouseup="clearmove()" ontouchstart="move('right')" style="visibility:hidden" >MOVE</button></div>
   <button id="btnLeft" onmousedown="changeDirection('left')" onmouseup="clearmove()" ontouchstart="move('left')">LEFT</button>
   <button id="btnRight" onmousedown="changeDirection('right')" onmouseup="clearmove()" ontouchstart="move('right')">RIGHT</button><br><br>
 </div>
+
 
 </body>
 </html>
